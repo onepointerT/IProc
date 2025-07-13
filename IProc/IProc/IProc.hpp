@@ -17,7 +17,7 @@ namespace oneptr {
 namespace IProc {
 
 
-
+/// @brief The main IProc class that manages the different formats of pictures to process with and edit.
 class IProc {
 public:
     IProc();

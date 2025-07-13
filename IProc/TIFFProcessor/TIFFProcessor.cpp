@@ -10,31 +10,18 @@ namespace IProc {
 
 
 
-TIFFProcessor::TIFFProcessor() { }
+TIFFProcessor::TIFFProcessor()
+    :   PictureProcessor()
+{}
 
-TIFFProcessor::TIFFProcessor(const TIFFProcessor& orig) { }
+TIFFProcessor::TIFFProcessor(const TIFFProcessor& orig)
+    :   PictureProcessor( orig )
+{}
 
-TIFFProcessor::~TIFFProcessor() { }
+TIFFProcessor::~TIFFProcessor() {}
 
-int TIFFProcessor::setHeight(int height) {
-    this->imgHeight = height;
-    return 1;
-}
 
-int TIFFProcessor::setWidth(int width) {
-    this->imgWidth = width;
-    return 1;
-}
-
-int TIFFProcessor::getHeight() {
-    return this->imgHeight;
-}
-
-int TIFFProcessor::getWidth() {
-    return this->imgWidth;
-}
-
-int TIFFProcessor::readImage(char * filename) {
+bool TIFFProcessor::readImage(char * filename) {
   
     TIFF* tif = TIFFOpen(filename, "r");
     if (tif) {
@@ -53,10 +40,10 @@ int TIFFProcessor::readImage(char * filename) {
 	}
 	TIFFClose(tif);
     }
-    return 1;
+    return true;
 }
 
-int TIFFProcessor::writeImage (char * filename, ImageData ImageData) {
+bool TIFFProcessor::writeImage (char * filename, ImageData& ImageData) {
   
     TIFF* tif = TIFFOpen(filename, "w");
     
@@ -94,14 +81,10 @@ int TIFFProcessor::writeImage (char * filename, ImageData ImageData) {
         TIFFClose(tif);
     }
     delete ImageData.imgPixArray;
-    return 1;
+    return true;
 }
 
-ImageData TIFFProcessor::getImageData(){
-    return this->imgDataStruct;
-}
-
-int TIFFProcessor::fillRGBApixelArray(uint32* raster, int npixels){
+bool TIFFProcessor::fillRGBApixelArray(uint32* raster, int npixels){
     
     imgDataStruct.imgPixArray = new RGBApixel[npixels];
     imgDataStruct.imgHeight = imgHeight;
@@ -126,12 +109,7 @@ int TIFFProcessor::fillRGBApixelArray(uint32* raster, int npixels){
             if (rasterPos < 0) break;
         }
     }   
-    return 1;
-}
-
-int TIFFProcessor::freeImageData(){
-    imgDataStruct.imgPixArray = NULL;
-    return 1;
+    return true;
 }
 
 

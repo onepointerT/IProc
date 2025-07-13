@@ -5,36 +5,62 @@
 #include "PNGProcessor/PNGProcessor.hpp"
 
 
+#include <iostream>
+#include <cstdio>
+
+
 namespace oneptr {
 namespace IProc {
 
 
 png_bytep *rowPointers;
 
-PNGProcessor::PNGProcessor() { }
+PNGProcessor::PNGProcessor()
+    :   PictureProcessor()
+    ,   colorType( 0 )
+    ,   bitDepth( 0 )
+    ,   imgWidth( 0 )
+    ,   imgHeight( 0 )
+    ,   pBackground( new png_color_16{} )
+    ,   red( new unsigned char[16] )
+    ,   green( new unsigned char[16] )
+    ,   blue( new unsigned char[16] )
+    ,   gamma( 0.1 )
+    ,   displayExponent( 0.0 )
+{}
 
-PNGProcessor::PNGProcessor(const PNGProcessor& orig) { }
+PNGProcessor::PNGProcessor(const PNGProcessor& orig)
+    :   PictureProcessor( orig )
+    ,   colorType( orig.colorType )
+    ,   bitDepth( orig.bitDepth )
+    ,   imgWidth( orig.imgWidth )
+    ,   imgHeight( orig.imgHeight )
+    ,   pBackground( orig.pBackground )
+    ,   red( orig.red )
+    ,   green( orig.green )
+    ,   blue( orig.blue )
+    ,   gamma( orig.gamma )
+    ,   displayExponent( orig.displayExponent )
+{}
 
 PNGProcessor::~PNGProcessor() {
     free(rowPointers);
 }
 
-int PNGProcessor::getHeight(){
-    return (int)(this->imgHeight);
+u_int PNGProcessor::getHeight(){
+    return (u_int)(this->imgHeight);
 }
 
-int PNGProcessor::getWidth(){
-    return (int)(this->imgWidth);
+u_int PNGProcessor::getWidth(){
+    return (u_int)(this->imgWidth);
 }
 
-int PNGProcessor::setHeight(int height){
+void PNGProcessor::setHeight(u_int height){
     this->imgHeight = (png_uint_32)height;
-    return 1;
 }
 
-int PNGProcessor::setWidth(int width){
+void PNGProcessor::setWidth(u_int width){
     this->imgWidth = (png_uint_32)width;
-    return 1;
 }
 
 png_bytep* PNGProcessor::getPixelArray(){
@@ -42,14 +68,13 @@ png_bytep* PNGProcessor::getPixelArray(){
 }
 
 
-int PNGProcessor::readPNGVersionInfo(){
+void PNGProcessor::readPNGVersionInfo(){
     
     fprintf(stderr, "*** Compiled with libpng %s; using libpng %s.\n", PNG_LIBPNG_VER_STRING, png_libpng_ver);
     fprintf(stderr, "*** Compiled with zlib %s; using zlib %s.\n", ZLIB_VERSION, zlib_version);
-    return 0;
 }
 
-int PNGProcessor::readImage(char* path){
+bool PNGProcessor::readImage(char* path){
     
     png_structp pngPointer;
     png_infop infoPointer;
@@ -186,7 +211,7 @@ int PNGProcessor::readImage(char* path){
     return 0;
 }
 
-int PNGProcessor::writeImage(char* path, ImageData ImageData){
+bool PNGProcessor::writeImage(char* path, ImageData& ImageData){
     
     mainprog_info *mainprogPointer;
     png_structp pngPointer;
@@ -270,7 +295,7 @@ int PNGProcessor::writeImage(char* path, ImageData ImageData){
     return 0;
 }
 
-int PNGProcessor::fillRGBApixelArray(){
+bool PNGProcessor::fillRGBApixelArray(){
     
     imgDataStruct.imgPixArray = new RGBApixel[imgHeight*imgWidth];
     imgDataStruct.imgHeight = imgHeight;
@@ -288,18 +313,8 @@ int PNGProcessor::fillRGBApixelArray(){
             imgDataStruct.imgPixArray[pixPos].a = px[3];
         }
     }
-    return 1;
+    return true;
 }
-
-ImageData PNGProcessor::getImageData(){
-    return this->imgDataStruct;
-}
-
-int PNGProcessor::freeImageData(){
-    imgDataStruct.imgPixArray = NULL;
-    return 1;
-}
-
 
 
 } // namespace IProc

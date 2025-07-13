@@ -3,11 +3,7 @@
 
 #pragma once
 
-#include <iostream>
-#include <stdio.h>
-#include <math.h>
-#include <sys/types.h>
-
+#include "PictureProcessor.hpp"
 #include "PixelProcessor/pixel.h"
 
 
@@ -15,17 +11,16 @@ namespace oneptr {
 namespace IProc {
 
 
-typedef unsigned int u_int;
-typedef unsigned char u_char;
-
-class PixelProcessor {
+/// @brief The pixel processor for generic pixel pictures
+class PixelProcessor
+    :   public PictureProcessor
+{
 public:
     PixelProcessor();
     PixelProcessor(const PixelProcessor& orig);
     virtual ~PixelProcessor();
     
-    RGBApixel getPixel(int x, int y, ImageData);
-    RGBApixel setPixel(int x, int y, ImageData);
+    static RGBApixel& getPixel(int x, int y, ImageData&);
     
     /// @brief Resize the pixels to another dimension
     /// |-------------------------|
@@ -102,11 +97,11 @@ public:
     ////
     u_int* binary(int, int, int, u_int*);
     
-    
-    
-private:
+    virtual bool readImage( char* path ) override { return true; }
+    virtual bool writeImage( char* path, ImageData& imgData ) override { return true; }
+
+protected:
     int* pixelArray;
-    ImageData imgDataStruct;
 
 };
 

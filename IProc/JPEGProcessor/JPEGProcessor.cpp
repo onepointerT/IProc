@@ -5,45 +5,44 @@
 #include "JPEGProcessor/JPEGProcessor.hpp"
 
 
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+
+
 namespace oneptr {
 namespace IProc {
 
 
 
-JPEGProcessor::JPEGProcessor() { }
+struct JPEGProcessor::error_mgr* JPEGProcessor::init_error_mgr() {
+    return new JPEGProcessor::error_mgr{.pub = (jpeg_error_mgr&) *new jpeg_error_mgr{}, .setjmp_buffer = (jmp_buf&) *new jmp_buf(*new _JBTYPE(), *new _JBTYPE())};
+}
 
-JPEGProcessor::JPEGProcessor(const JPEGProcessor& orig) { }
+
+JPEGProcessor::JPEGProcessor()
+    :   PictureProcessor()
+    ,   error_ptr( init_error_mgr() )
+{}
+
+JPEGProcessor::JPEGProcessor(const JPEGProcessor& orig)
+    :   PictureProcessor( orig )
+    ,   error_ptr( init_error_mgr() )
+{}
 
 JPEGProcessor::~JPEGProcessor() { }
 
-int JPEGProcessor::setHeight(int height) {
-    this->imgHeight = height;
-    return 1;
-}
 
-int JPEGProcessor::setWidth(int width) {
-    this->imgWidth = width;
-    return 1;
-}
-
-int JPEGProcessor::getHeight() {
-    return this->imgHeight;
-}
-
-int JPEGProcessor::getWidth() {
-    return this->imgWidth;
-}
-
-int JPEGProcessor::readImage(char * filename) {
+bool JPEGProcessor::readImage( char* filename ) {
   
     struct jpeg_decompress_struct cinfo;
 
-    struct error_mgr jerr;
-    FILE * infile;		/* source file */
+    struct error_mgr& jerr = *init_error_mgr();
+    FILE* infile;		/* source file */
     JSAMPARRAY buffer;		/* Output row buffer */
-    int row_stride;		/* physical row width in output buffer */
+    u_int row_stride;		/* physical row width in output buffer */
 
-    if ((infile = fopen(filename, "rb")) == NULL) {
+    if ((infile = std::fopen(filename, "rb")) == NULL) {
         fprintf(stderr, "can't open %s\n", filename);
         return 0;
     }
@@ -54,7 +53,7 @@ int JPEGProcessor::readImage(char * filename) {
     /* Establish the setjmp return context for error_exit to use. */
     if (setjmp(jerr.setjmp_buffer)) {
         jpeg_destroy_decompress(&cinfo);
-        fclose(infile);
+        std::fclose(infile);
         return 0;
     }
     
@@ -72,8 +71,8 @@ int JPEGProcessor::readImage(char * filename) {
     /* Start decompressor */
     (void) jpeg_start_decompress(&cinfo);
     
-    setWidth(cinfo.output_width);
-    setHeight(cinfo.output_height);
+    this->setWidth(cinfo.output_width);
+    this->setHeight(cinfo.output_height);
 
     /* JSAMPLEs per row in output buffer */
     row_stride = cinfo.output_width * cinfo.output_components;
@@ -84,10 +83,10 @@ int JPEGProcessor::readImage(char * filename) {
     imgDataStruct.imgHeight = imgHeight;
     imgDataStruct.imgWidth = imgWidth;
     
-    int pixPos = 0;
+    u_int pixPos = 0;
     while (cinfo.output_scanline < cinfo.output_height) {
         (void) jpeg_read_scanlines(&cinfo, buffer, 1);
-        fillRGBApixelArray(buffer, pixPos, row_stride);
+        this->fillRGBApixelArray(buffer, pixPos, row_stride);
         pixPos+=cinfo.output_width;
     }
     
@@ -96,14 +95,14 @@ int JPEGProcessor::readImage(char * filename) {
 
     jpeg_destroy_decompress(&cinfo);
 
-    fclose(infile);
+    std::fclose(infile);
     
-    return 1;
+    return true;
 }
 
-int JPEGProcessor::writeImage (char * filename, ImageData ImageData) {
+bool JPEGProcessor::writeImage ( char* filename, ImageData& ImageData ) {
   
-    int quality = 100;  
+    u_int quality = 100;  
 
     struct jpeg_compress_struct cinfo;
 
@@ -111,7 +110,7 @@ int JPEGProcessor::writeImage (char * filename, ImageData ImageData) {
     FILE * outfile;		/* target file */
     JSAMPROW row_pointer[1];	/* pointer to JSAMPLE row[s] */
     JSAMPLE * buffer;           /* array with JSAMPLEs */
-    int row_stride;		/* physical row width in image buffer */
+    u_int row_stride;		/* physical row width in image buffer */
 
     /* allocate and initialize JPEG compression object */
     cinfo.err = jpeg_std_error(&jerr);
@@ -119,9 +118,9 @@ int JPEGProcessor::writeImage (char * filename, ImageData ImageData) {
     jpeg_create_compress(&cinfo);
 
     /* specify data destination */
-    if ((outfile = fopen(filename, "wb")) == NULL) {
-        fprintf(stderr, "can't open %s\n", filename);
-        exit(1);
+    if ((outfile = std::fopen(filename, "wb")) == NULL) {
+        std::fprintf(stderr, "can't open %s\n", filename);
+        std::exit(1);
     }
     jpeg_stdio_dest(&cinfo, outfile);
     
@@ -140,10 +139,10 @@ int JPEGProcessor::writeImage (char * filename, ImageData ImageData) {
 
     row_stride = ImageData.imgWidth * 3;	/* JSAMPLEs per row in buffer */
 
-    int RGBpixels = ImageData.imgHeight * ImageData.imgWidth;
+    u_int RGBpixels = ImageData.imgHeight * ImageData.imgWidth;
     buffer = new JSAMPLE[RGBpixels * 3]; 
-    int bufferPos = 0;
-    for(int pixPos = 0; pixPos < RGBpixels; pixPos++){
+    u_int bufferPos = 0;
+    for(u_int pixPos = 0; pixPos < RGBpixels; pixPos++){
         buffer[bufferPos] = ImageData.imgPixArray[pixPos].r;
         buffer[bufferPos+1] = ImageData.imgPixArray[pixPos].g;
         buffer[bufferPos+2] = ImageData.imgPixArray[pixPos].b;
@@ -158,7 +157,7 @@ int JPEGProcessor::writeImage (char * filename, ImageData ImageData) {
     /* Finish compression */
     jpeg_finish_compress(&cinfo);
     /* close the output file. */
-    fclose(outfile);
+    std::fclose(outfile);
     /* release JPEG compression object */
     jpeg_destroy_compress(&cinfo);
     
@@ -173,27 +172,22 @@ void JPEGProcessor::error_exit (j_common_ptr cinfo) {
     longjmp(error_ptr->setjmp_buffer, 1);
 }
 
-ImageData JPEGProcessor::getImageData(){
-    return this->imgDataStruct;
-}
-
-int JPEGProcessor::fillRGBApixelArray(JSAMPARRAY buffer, int pixPos, int row_stride){
+bool JPEGProcessor::fillRGBApixelArray(JSAMPARRAY buffer, u_int pixPos, u_int row_stride){
     
-    for(int i = 0; i < row_stride; i+=3){
-        imgDataStruct.imgPixArray[pixPos].r = (int)buffer[0][i];
-        imgDataStruct.imgPixArray[pixPos].g = (int)buffer[0][i+1];
-        imgDataStruct.imgPixArray[pixPos].b = (int)buffer[0][i+2];
+    for(u_int i = 0; i < row_stride; i+=3){
+        imgDataStruct.imgPixArray[pixPos].r = (u_int)buffer[0][i];
+        imgDataStruct.imgPixArray[pixPos].g = (u_int)buffer[0][i+1];
+        imgDataStruct.imgPixArray[pixPos].b = (u_int)buffer[0][i+2];
         imgDataStruct.imgPixArray[pixPos].a = 255;
         pixPos++;
     }
-    return 1;
+    return true;
 }
 
-int JPEGProcessor::freeImageData(){
-    imgDataStruct.imgPixArray = NULL;
-    return 1;
-}
 
+bool JPEGProcessor::fillRGBApixelArray( unsigned char*  buffer, u_int row, u_int byteSize ) {
+    return this->fillRGBApixelArray( buffer, row, byteSize );
+}
 
 
 } // namespace IProc

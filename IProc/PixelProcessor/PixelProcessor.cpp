@@ -5,18 +5,29 @@
 #include "PixelProcessor/PixelProcessor.hpp"
 
 
+#include <iostream>
+#include <stdio.h>
+#include <math.h>
+#include <sys/types.h>
+
+
 namespace oneptr {
 namespace IProc {
 
 
 
-PixelProcessor::PixelProcessor() { }
+PixelProcessor::PixelProcessor()
+    :   PictureProcessor()
+{}
 
-PixelProcessor::PixelProcessor(const PixelProcessor& orig) { }
+PixelProcessor::PixelProcessor(const PixelProcessor& orig)
+    :   PictureProcessor( orig )
+{}
 
-PixelProcessor::~PixelProcessor() { }
+PixelProcessor::~PixelProcessor() {}
 
-RGBApixel PixelProcessor::getPixel(int x, int y, ImageData imgDataStruct){
+
+RGBApixel& PixelProcessor::getPixel(int x, int y, ImageData& imgDataStruct){
     return imgDataStruct.imgPixArray[x+(y*imgDataStruct.imgWidth)];
 }
 
@@ -37,7 +48,7 @@ u_int* PixelProcessor::resize(int originWidth, int originHeight, int newWidth, i
     int newPixelSize = newWidth * newHeight;
     newPixelArray = new u_int[newPixelSize];
     
-    for (i = 0; i < newHeight; i++) {
+    for ( i = 0; i < newHeight; i++ ) {
         for (j = 0; j < newWidth; j++) {
     
             tmp = (float) (i) / (float) (newHeight - 1) * (originHeight - 1);
