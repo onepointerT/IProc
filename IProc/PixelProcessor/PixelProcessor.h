@@ -14,6 +14,9 @@
 #include <sys/types.h>
 #include "pixel.h"
 
+typedef unsigned int u_int;
+typedef unsigned char u_char;
+
 class PixelProcessor {
 public:
     PixelProcessor();
