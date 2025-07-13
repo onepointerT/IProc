@@ -1,14 +1,7 @@
-/* 
- * File:   libiproc.h
- * Author: heshan
- *
- * Created on October 5, 2017, 1:29 PM
- */
+// Copyright 2017,2025 The OnePointer Authors.
+//
 
-#ifndef LIBIPROC_H
-#define LIBIPROC_H
+#pragma once
 
-#include "IProc/IProc.h"
-
-#endif /* LIBIPROC_H */
+#include "IProc/IProc.hpp"
 

@@ -1,11 +1,14 @@
-/* 
- * File:   PixelProcessor.cpp
- * Author: heshan
- * 
- * Created on September 24, 2017, 1:02 PM
- */
+// Copyright 2017,2025 The OnePointer Authors.
+//
 
-#include "PixelProcessor.h"
+
+#include "PixelProcessor/PixelProcessor.hpp"
+
+
+namespace oneptr {
+namespace IProc {
+
+
 
 PixelProcessor::PixelProcessor() { }
 
@@ -13,24 +16,10 @@ PixelProcessor::PixelProcessor(const PixelProcessor& orig) { }
 
 PixelProcessor::~PixelProcessor() { }
 
-RGBApixel PixelProcessor::getPixel(int x, int y, ImageDataStruct imgDataStruct){
+RGBApixel PixelProcessor::getPixel(int x, int y, ImageData imgDataStruct){
     return imgDataStruct.imgPixArray[x+(y*imgDataStruct.imgWidth)];
 }
 
-/**
- * |-------------------------|
- * |-------------------------|          |------|
- * |-------------------------|  ==>     |------|
- * |-------------------------|          |------|
- * |-------------------------|
- * 
- * @param originWidth Original image width
- * @param originHeight Original image height
- * @param newWidth new image width
- * @param newHeight new image height
- * @param OriginalArray Original pixel Array
- * @return resized pixel array
- */
 u_int* PixelProcessor::resize(int originWidth, int originHeight, int newWidth, int newHeight, u_int *OriginalArray){
   
     int i;
@@ -97,20 +86,6 @@ u_int* PixelProcessor::resize(int originWidth, int originHeight, int newWidth, i
     return newPixelArray;
 }
 
-/**
- * |-------------------------|
- * |-------------------------|          |------|
- * |-------------------------|  ==>     |------|
- * |-------------------------|          |------|
- * |-------------------------|
- * 
- * @param originWidth Original image width
- * @param originHeight Original image height
- * @param newWidth new image width
- * @param newHeight new image height
- * @param OriginalArray Original pixel Array
- * @return resized pixel array
- */
 unsigned char ** PixelProcessor::resize(int originWidth, int originHeight, int newWidth, int newHeight, unsigned char **OriginalArray){
     
     int i;
@@ -208,24 +183,6 @@ unsigned char ** PixelProcessor::resize(int originWidth, int originHeight, int n
     return newPixelArray;
 }
 
-/**
- *              col1           col2
- *      |----------------------------------|
- * row1 |----------------------------------|
- *      |----------------------------------|
- *      |----------------------------------|
- * row2 |----------------------------------|
- *      |----------------------------------|
- * 
- * @param row1 cropped image top row coordinate
- * @param col1 cropped image left coordinate         
- * @param row2 cropped image bottom coordinate
- * @param col2 cropped image right coordinate 
- * @param originWidth Original image width
- * @param originHeight Original image height
- * @param OriginalArray Original pixel array
- * @return cropped image pixel array
- */
 u_int* PixelProcessor::crop(int row1, int col1, int row2, int col2, int originWidth, u_int *OriginalArray){
     
     int newHeight = row2 - row1;
@@ -247,12 +204,6 @@ u_int* PixelProcessor::shear(){
     return newPixelArray;
 }
 
-/**
- * @param originWidth Original image width
- * @param originHeight Original image height
- * @param OriginalArray Original pixel array
- * @return gray pixel array
- */
 u_int* PixelProcessor::grayScale(int originWidth, int originHeight, u_int* OriginalArray){
     
     //u_int *pntrBWImage=(u_int*); //..data pointer..;  //assumes 4*width*height bytes with 32 bits i.e. 4 bytes per pixel
@@ -281,14 +232,6 @@ u_int* PixelProcessor::rotate(){
     return newPixelArray;
 }
 
-/**
- * 
- * @param originWidth Original image width
- * @param originHeight Original image height
- * @param limit pixel divider boundary
- * @param OriginalArray Original pixel array
- * @return binary pixel array
- */
 u_int* PixelProcessor::binary(int originWidth, int originHeight, int limit, u_int* OriginalArray){
     
     int arraySize = originWidth * originHeight;
@@ -303,3 +246,8 @@ u_int* PixelProcessor::binary(int originWidth, int originHeight, int limit, u_in
     }
     return newPixelArray;
 }
+
+
+
+} // namespace IProc
+} // namespace oneptr

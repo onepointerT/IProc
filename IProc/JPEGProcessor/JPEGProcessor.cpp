@@ -1,11 +1,14 @@
-/* 
- * File:   JPEGProcessor.cpp
- * Author: heshan
- * 
- * Created on October 5, 2017, 4:02 PM
- */
+// Copyright 2017,2025 The OnePointer Authors.
+//
 
-#include "JPEGProcessor.h"
+
+#include "JPEGProcessor/JPEGProcessor.hpp"
+
+
+namespace oneptr {
+namespace IProc {
+
+
 
 JPEGProcessor::JPEGProcessor() { }
 
@@ -13,42 +16,24 @@ JPEGProcessor::JPEGProcessor(const JPEGProcessor& orig) { }
 
 JPEGProcessor::~JPEGProcessor() { }
 
-/**
- * @param height of the image
- * @return 1 
- */
 int JPEGProcessor::setHeight(int height) {
     this->imgHeight = height;
     return 1;
 }
 
-/**
- * @param width of the image
- * @return 1
- */
 int JPEGProcessor::setWidth(int width) {
     this->imgWidth = width;
     return 1;
 }
 
-/**
- * @return height of the image 
- */
 int JPEGProcessor::getHeight() {
     return this->imgHeight;
 }
 
-/**
- * @return width of the image 
- */
 int JPEGProcessor::getWidth() {
     return this->imgWidth;
 }
 
-/**
- * @param filename the path to the image
- * @return 1 if read the image without any errors
- */
 int JPEGProcessor::readImage(char * filename) {
   
     struct jpeg_decompress_struct cinfo;
@@ -116,12 +101,7 @@ int JPEGProcessor::readImage(char * filename) {
     return 1;
 }
 
-/**
- * @param filename target fie path
- * @param imageDataStruct pixel array of the image to be written
- * @return 1 if write the image without any errors
- */
-int JPEGProcessor::writeImage (char * filename, ImageDataStruct imageDataStruct) {
+int JPEGProcessor::writeImage (char * filename, ImageData ImageData) {
   
     int quality = 100;  
 
@@ -146,8 +126,8 @@ int JPEGProcessor::writeImage (char * filename, ImageDataStruct imageDataStruct)
     jpeg_stdio_dest(&cinfo, outfile);
     
     /* set parameters for compression */
-    cinfo.image_width = imageDataStruct.imgWidth; 	/* image width and height, in pixels */
-    cinfo.image_height = imageDataStruct.imgHeight;
+    cinfo.image_width = ImageData.imgWidth; 	/* image width and height, in pixels */
+    cinfo.image_height = ImageData.imgHeight;
     cinfo.input_components = 3;		/* # of color components per pixel */
     cinfo.in_color_space = JCS_RGB; 	/* colorspace of input image */
     
@@ -158,15 +138,15 @@ int JPEGProcessor::writeImage (char * filename, ImageDataStruct imageDataStruct)
     /* Start compressor */
     jpeg_start_compress(&cinfo, TRUE);
 
-    row_stride = imageDataStruct.imgWidth * 3;	/* JSAMPLEs per row in buffer */
+    row_stride = ImageData.imgWidth * 3;	/* JSAMPLEs per row in buffer */
 
-    int RGBpixels = imageDataStruct.imgHeight * imageDataStruct.imgWidth;
+    int RGBpixels = ImageData.imgHeight * ImageData.imgWidth;
     buffer = new JSAMPLE[RGBpixels * 3]; 
     int bufferPos = 0;
     for(int pixPos = 0; pixPos < RGBpixels; pixPos++){
-        buffer[bufferPos] = imageDataStruct.imgPixArray[pixPos].r;
-        buffer[bufferPos+1] = imageDataStruct.imgPixArray[pixPos].g;
-        buffer[bufferPos+2] = imageDataStruct.imgPixArray[pixPos].b;
+        buffer[bufferPos] = ImageData.imgPixArray[pixPos].r;
+        buffer[bufferPos+1] = ImageData.imgPixArray[pixPos].g;
+        buffer[bufferPos+2] = ImageData.imgPixArray[pixPos].b;
         bufferPos += 3;
     }
   
@@ -182,33 +162,21 @@ int JPEGProcessor::writeImage (char * filename, ImageDataStruct imageDataStruct)
     /* release JPEG compression object */
     jpeg_destroy_compress(&cinfo);
     
-    delete imageDataStruct.imgPixArray;
+    delete ImageData.imgPixArray;
 
     return 1;
 }
 
-/**
- * @param cinfo
- */
 void JPEGProcessor::error_exit (j_common_ptr cinfo) {
     (*cinfo->err->output_message) (cinfo);
     /* Return control to the setjmp point */
     longjmp(error_ptr->setjmp_buffer, 1);
 }
 
-/**
- * @return ImageDataStruct that contains pixel array and image meta data 
- */
-ImageDataStruct JPEGProcessor::getImageDataStruct(){
+ImageData JPEGProcessor::getImageData(){
     return this->imgDataStruct;
 }
 
-/**
- * @param buffer that contains decompressed image pixels 
- * @param pixPos pixel position
- * @param row_stride physical row width in image buffer 
- * @return 1 
- */
 int JPEGProcessor::fillRGBApixelArray(JSAMPARRAY buffer, int pixPos, int row_stride){
     
     for(int i = 0; i < row_stride; i+=3){
@@ -221,11 +189,12 @@ int JPEGProcessor::fillRGBApixelArray(JSAMPARRAY buffer, int pixPos, int row_str
     return 1;
 }
 
-/**
- * free the pixel array in imageDataStruct
- * @return 1 
- */
 int JPEGProcessor::freeImageData(){
     imgDataStruct.imgPixArray = NULL;
     return 1;
 }
+
+
+
+} // namespace IProc
+} // namespace oneptr

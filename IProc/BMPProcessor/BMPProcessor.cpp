@@ -1,11 +1,13 @@
-/* 
- * File:   BMPProcessor.cpp
- * Author: heshan
- * 
- * Created on December 3, 2017, 12:29 AM
- */
+// Copyright 2017,2025 The OnePointer Authors.
+//
 
-#include "BMPProcessor.h"
+
+#include "BMPProcessor/BMPProcessor.hpp"
+
+
+namespace oneptr {
+namespace IProc {
+
 
 BMPProcessor::BMPProcessor() { }
 
@@ -13,42 +15,27 @@ BMPProcessor::BMPProcessor(const BMPProcessor& orig) { }
 
 BMPProcessor::~BMPProcessor() { }
 
-/**
- * @param height of the image
- * @return 1 
- */
 int BMPProcessor::setHeight(int height) {
     this->imgHeight = height;
     return 1;
 }
 
-/**
- * @param width of the image
- * @return 1
- */
+
 int BMPProcessor::setWidth(int width) {
     this->imgWidth = width;
     return 1;
 }
 
-/**
- * @return height of the image 
- */
+
 int BMPProcessor::getHeight() {
     return this->imgHeight;
 }
 
-/**
- * @return width of the image 
- */
+
 int BMPProcessor::getWidth() {
     return this->imgWidth;
 }
 
-/**
- * @param filename the path to the image
- * @return 1 if read the image without any errors
- */
 int BMPProcessor::readImage(char * filename) {
     
     FILE* file = fopen(filename, "rb");
@@ -86,15 +73,10 @@ int BMPProcessor::readImage(char * filename) {
     return 1;
 }
 
-/**
- * @param filename target fie path
- * @param imageDataStruct pixel array of the image to be written
- * @return 1 if write the image without any errors
- */
-int BMPProcessor::writeImage (char * filename, ImageDataStruct imageDataStruct, int bBit = 32) {
+int BMPProcessor::writeImage (char * filename, ImageData ImageData, int bBit = 32) {
     
-    imgHeight = imageDataStruct.imgHeight;
-    imgWidth = imageDataStruct.imgWidth;
+    imgHeight = ImageData.imgHeight;
+    imgWidth = ImageData.imgWidth;
     
     int byteSize;
     if (bBit == 24) byteSize = 3;
@@ -113,9 +95,9 @@ int BMPProcessor::writeImage (char * filename, ImageDataStruct imageDataStruct, 
         for(int i=0; i<imgWidth; i++) {
             for(int j=0; j<imgHeight; j++) {
                 x=i; y=(imgHeight-1)-j;
-                r = imageDataStruct.imgPixArray[x + y*imgWidth].r;
-                g = imageDataStruct.imgPixArray[x + y*imgWidth].g;
-                b = imageDataStruct.imgPixArray[x + y*imgWidth].b;
+                r = ImageData.imgPixArray[x + y*imgWidth].r;
+                g = ImageData.imgPixArray[x + y*imgWidth].g;
+                b = ImageData.imgPixArray[x + y*imgWidth].b;
                 img[(x+y*imgWidth)*3+2] = (unsigned char)(r);
                 img[(x+y*imgWidth)*3+1] = (unsigned char)(g);
                 img[(x+y*imgWidth)*3+0] = (unsigned char)(b);
@@ -125,10 +107,10 @@ int BMPProcessor::writeImage (char * filename, ImageDataStruct imageDataStruct, 
         for(int i=0; i<imgWidth; i++) {
             for(int j=0; j<imgHeight; j++) {
                 x=i; y=(imgHeight-1)-j;
-                r = imageDataStruct.imgPixArray[x + y*imgWidth].r;
-                g = imageDataStruct.imgPixArray[x + y*imgWidth].g;
-                b = imageDataStruct.imgPixArray[x + y*imgWidth].b;
-                a = imageDataStruct.imgPixArray[x + y*imgWidth].a;
+                r = ImageData.imgPixArray[x + y*imgWidth].r;
+                g = ImageData.imgPixArray[x + y*imgWidth].g;
+                b = ImageData.imgPixArray[x + y*imgWidth].b;
+                a = ImageData.imgPixArray[x + y*imgWidth].a;
                 img[(x+y*imgWidth)*4+3] = (unsigned char)(a);
                 img[(x+y*imgWidth)*4+2] = (unsigned char)(r);
                 img[(x+y*imgWidth)*4+1] = (unsigned char)(g);
@@ -166,26 +148,17 @@ int BMPProcessor::writeImage (char * filename, ImageDataStruct imageDataStruct, 
         fwrite(bmppad,1,(4-(imgWidth*byteSize)%4)%4,file);
     }
 
-    delete imageDataStruct.imgPixArray;
+    delete ImageData.imgPixArray;
     free(img);
     fclose(file);
     
     return 1;
 }
 
-/**
- * @return ImageDataStruct that contains pixel array and image meta data 
- */
-ImageDataStruct BMPProcessor::getImageDataStruct(){
+ImageData BMPProcessor::getImageData(){
     return this->imgDataStruct;
 }
 
-/**
- * @param buffer that contains decompressed image pixels 
- * @param pixPos pixel position
- * @param row_stride physical row width in image buffer 
- * @return 1 
- */
 int BMPProcessor::fillRGBApixelArray(unsigned char* data, int row, int byteSize){
 
     int col = 0;
@@ -211,11 +184,11 @@ int BMPProcessor::fillRGBApixelArray(unsigned char* data, int row, int byteSize)
     return 1;
 }
 
-/**
- * free the pixel array in imageDataStruct
- * @return 1 
- */
 int BMPProcessor::freeImageData(){
     imgDataStruct.imgPixArray = NULL;
     return 1;
 }
+
+
+} // namespace IProc
+} // namespace oneptr

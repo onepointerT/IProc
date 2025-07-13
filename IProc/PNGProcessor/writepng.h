@@ -1,12 +1,22 @@
-/* 
- * File:   writepng.h
- * Author: heshan
- *
- * Created on October 8, 2017, 8:33 PM
- */
+// Copyright 2017,2025 The OnePointer Authors.
+//
 
-#ifndef WRITEPNG_H
-#define WRITEPNG_H
+#ifndef IPROC_WRITEPNG_H_
+#define IPROC_WRITEPNG_H_
+
+
+#ifdef __cplusplus
+
+
+namespace oneptr {
+namespace IProc {
+
+extern "C" {
+#endif
+
+#include <setjmp.h>
+#include <stdio.h>
+#include <time.h>
 
 typedef struct _mainprog_info {
     double gamma;
@@ -37,7 +47,18 @@ typedef struct _mainprog_info {
     unsigned char bg_green;
     unsigned char bg_blue;
 } mainprog_info;
-    
 
-#endif /* WRITEPNG_H */
+
+#ifdef __cplusplus
+}
+
+
+
+} // namespace IProc
+} // namespace oneptr
+
+#endif
+
+
+#endif /* IPROC_WRITEPNG_H_ */
 

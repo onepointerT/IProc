@@ -1,13 +1,17 @@
-/* 
- * File:   IProc.cpp
- * Author: heshan
- * 
- * Created on October 5, 2017, 1:32 PM
- */
+// Copyright 2017,2025 The OnePointer Authors.
+//
+
 
 #include <iostream>
 #include <algorithm>
-#include "IProc.h"
+
+#include "IProc/IProc.hpp"
+
+
+namespace oneptr {
+namespace IProc {
+
+
 
 IProc::IProc() { }
 
@@ -15,15 +19,7 @@ IProc::IProc(const IProc& orig) { }
 
 IProc::~IProc() { }
 
-/**
- * 
- * @param path of the image ( source or the target)
- * @return an integer according to the image format
- * 1 : PNG
- * 2 : JPEG/JPG
- * 3 : TIFF/TIF
- * 4 : BMP
- */
+
 int IProc::getImageFormat(std::string path){
     // getting the image type from path (file extension)
     std::string extension;
@@ -40,10 +36,6 @@ int IProc::getImageFormat(std::string path){
     
 }
 
-/**
- * prints the version of the image library used [ libpng, libjpeg ]
- * @return 
- */
 int IProc::readImageFormatInfo(std::string path){
     if ( path == "png" ){
         pngProc.readPNGVersionInfo();
@@ -53,11 +45,7 @@ int IProc::readImageFormatInfo(std::string path){
     return 0;
 }
 
-/**
- * 
- * @param imgPath path of the image source
- * @return 1
- */
+
 int IProc::readImage(std::string imgPath){
     
     char *path = new char[imgPath.length() + 1];
@@ -66,22 +54,22 @@ int IProc::readImage(std::string imgPath){
     switch(getImageFormat(imgPath)){
         case 1:
             pngProc.readImage(path);
-            imgDataStruct = pngProc.getImageDataStruct();
+            imgDataStruct = pngProc.getImageData();
             pngProc.freeImageData();
             break;
         case 2:
             jpegProc.readImage(path);
-            imgDataStruct = jpegProc.getImageDataStruct();
+            imgDataStruct = jpegProc.getImageData();
             jpegProc.freeImageData();
             break;
         case 3:
             tifProc.readImage(path);
-            imgDataStruct = tifProc.getImageDataStruct();
+            imgDataStruct = tifProc.getImageData();
             tifProc.freeImageData();
             break;    
         case 4:
             bmpProc.readImage(path);
-            imgDataStruct = bmpProc.getImageDataStruct();
+            imgDataStruct = bmpProc.getImageData();
             bmpProc.freeImageData();
             break;    
         default:
@@ -91,11 +79,6 @@ int IProc::readImage(std::string imgPath){
     return 1;
 }
 
-/**
- * 
- * @param imgPath path of the target image
- * @return 1 
- */
 int IProc::writeImage(std::string imgPath){
     
     char *path = new char[imgPath.length() + 1];
@@ -137,12 +120,7 @@ int IProc::writeImage(std::string imgPath, int bBit){
 
 }
 
-/**
- * 
- * @param x position of pixel
- * @param y position of pixel
- * @return RGBApixel data structure
- */
+
 RGBApixel IProc::getPixel(int x,int y){
     
     RGBApixel pixel;
@@ -150,45 +128,27 @@ RGBApixel IProc::getPixel(int x,int y){
     return pixel;
 }
 
-/**
- * 
- * @return ImageDataStruct
- */
-ImageDataStruct IProc::getImageDataStruct(){
+
+ImageData IProc::getImageData(){
     
     return this->imgDataStruct;
 }
 
-/**
- * 
- * @param x position of pixel
- * @param y position of pixel
- * @param pixel new pixel to replace with the old pixel in that position
- * @return 1
- */
+
 int IProc::setPixel(int x,int y,RGBApixel pixel){ 
     
     imgDataStruct.imgPixArray[x+(y*imgDataStruct.imgWidth)] = pixel;
     return 1;
 }
 
-/**
- * 
- * @param imgDataStruct image data structure
- * @return 1
- */
-int IProc::setImageDataStruct(ImageDataStruct imgDataStruct){ 
+
+int IProc::setImageData(ImageData imgDataStruct){ 
     
     this->imgDataStruct = imgDataStruct;
     return 1;
 }
 
-/**
- * 
- * @param targetWidth new width of the image
- * @param targetHeight new height of the image
- * @return 1
- */
+
 int IProc::resize(int targetWidth, int targetHeight)  {    
     
     if (targetWidth == -1 && targetHeight == -1) {
@@ -201,7 +161,7 @@ int IProc::resize(int targetWidth, int targetHeight)  {
     targetWidth += targetWidth/5;
     targetHeight += targetHeight/5;       
     
-    ImageDataStruct newImgDataStruct;
+    ImageData newImgDataStruct;
     newImgDataStruct.imgWidth = targetWidth;
     newImgDataStruct.imgHeight = targetHeight;
     newImgDataStruct.imgPixArray = new RGBApixel[targetWidth*targetHeight];
@@ -251,39 +211,27 @@ int IProc::resize(int targetWidth, int targetHeight)  {
     return 1;
 }
 
-/**
- * 
- * @param row1
- * @param col1
- * @param row2
- * @param col2
- * @param originWidth
- * @param OriginalArray
- * @return 
- */
+
 int IProc::crop(int row1, int col1, int row2, int col2){
     
     int newHeight = row2 - row1;
     int newWidth = col2 - col1;
     int newPixelSize = newWidth * newHeight;
     int row, pos;
-    ImageDataStruct newImageDataStruct;
-    newImageDataStruct.imgHeight = newHeight;
-    newImageDataStruct.imgWidth = newWidth;
-    newImageDataStruct.imgPixArray = new RGBApixel[newPixelSize];
+    ImageData newImageData;
+    newImageData.imgHeight = newHeight;
+    newImageData.imgWidth = newWidth;
+    newImageData.imgPixArray = new RGBApixel[newPixelSize];
     for ( int i = 0; i < newPixelSize; i++ ) {
         row = row1 + (int)(i/newWidth);
         pos = (imgDataStruct.imgWidth * row) + col1 + (i % newWidth);
-        newImageDataStruct.imgPixArray[i] = imgDataStruct.imgPixArray[pos];
+        newImageData.imgPixArray[i] = imgDataStruct.imgPixArray[pos];
     }
-    imgDataStruct = newImageDataStruct;
+    imgDataStruct = newImageData;
     return 1;
 }
 
-/**
- * Convert the RGB pixel values to grayscale 
- * @return 1 
- */
+
 int IProc::grayscale(){
     
     int pixSize = imgDataStruct.imgWidth*imgDataStruct.imgHeight;
@@ -301,11 +249,6 @@ int IProc::grayscale(){
     return 1;
 }
 
-/**
- * 
- * @param limit
- * @return 
- */
 int IProc::binary(int limit){
     
     int pixSize = imgDataStruct.imgWidth * imgDataStruct.imgHeight;
@@ -323,3 +266,7 @@ int IProc::binary(int limit){
     }
     return 1;
 }
+
+
+} // namespace IProc
+} // namespace oneptr

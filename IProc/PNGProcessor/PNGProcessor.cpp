@@ -1,11 +1,13 @@
-/* 
- * File:   PNGProcessor.cpp
- * Author: heshan
- * 
- * Created on September 16, 2017, 10:37 PM
- */
+// Copyright 2017,2025 The OnePointer Authors.
+//
 
-#include "PNGProcessor.h"
+
+#include "PNGProcessor/PNGProcessor.hpp"
+
+
+namespace oneptr {
+namespace IProc {
+
 
 png_bytep *rowPointers;
 
@@ -17,50 +19,29 @@ PNGProcessor::~PNGProcessor() {
     free(rowPointers);
 }
 
-/**
- * @return image height 
- */
 int PNGProcessor::getHeight(){
     return (int)(this->imgHeight);
 }
 
-/**
- * @return image width 
- */
 int PNGProcessor::getWidth(){
     return (int)(this->imgWidth);
 }
 
-/**
- * @param height of the image
- * @return 1
- */
 int PNGProcessor::setHeight(int height){
     this->imgHeight = (png_uint_32)height;
     return 1;
 }
 
-/**
- * @param width of the image
- * @return 1
- */
 int PNGProcessor::setWidth(int width){
     this->imgWidth = (png_uint_32)width;
     return 1;
 }
 
-/**
- * @return pixel array
- */
 png_bytep* PNGProcessor::getPixelArray(){
     return rowPointers;
 }
 
 
-/**
- * prints the version of the libpng
- * @return 0 
- */
 int PNGProcessor::readPNGVersionInfo(){
     
     fprintf(stderr, "*** Compiled with libpng %s; using libpng %s.\n", PNG_LIBPNG_VER_STRING, png_libpng_ver);
@@ -68,14 +49,6 @@ int PNGProcessor::readPNGVersionInfo(){
     return 0;
 }
 
-/**
- * 
- * Store the the image in an unsigned char array [imageData]
- * 
- * @param path the path to the image
- * @return 0 if read the image without any errors
- * 
- */
 int PNGProcessor::readImage(char* path){
     
     png_structp pngPointer;
@@ -201,7 +174,7 @@ int PNGProcessor::readImage(char* path){
     // checks the remainder of the image for correctness
     png_read_end(pngPointer, NULL);
     
-    // fill the pixel array and create imageDataStruct
+    // fill the pixel array and create ImageData
     fillRGBApixelArray();
     
     imageData = NULL;
@@ -213,15 +186,7 @@ int PNGProcessor::readImage(char* path){
     return 0;
 }
 
-/**
- * 
- * Write the image to the file in given path
- * 
- * @param path the path to the image
- * @return 0 if read the image without any errors
- * 
- */
-int PNGProcessor::writeImage(char* path, ImageDataStruct imageDataStruct){
+int PNGProcessor::writeImage(char* path, ImageData ImageData){
     
     mainprog_info *mainprogPointer;
     png_structp pngPointer;
@@ -255,7 +220,7 @@ int PNGProcessor::writeImage(char* path, ImageDataStruct imageDataStruct){
     png_set_IHDR(
       pngPointer,
       infoPointer,
-      imageDataStruct.imgWidth, imageDataStruct.imgHeight,
+      ImageData.imgWidth, ImageData.imgHeight,
       8,
       PNG_COLOR_TYPE_RGBA,
       PNG_INTERLACE_NONE,
@@ -263,28 +228,28 @@ int PNGProcessor::writeImage(char* path, ImageDataStruct imageDataStruct){
       PNG_FILTER_TYPE_DEFAULT
     );
     
-    rowPointers = new png_bytep[imageDataStruct.imgHeight];
+    rowPointers = new png_bytep[ImageData.imgHeight];
     rowBytes = png_get_rowbytes(pngPointer, infoPointer);
     
-    if ((imageData = (unsigned char *)malloc(rowBytes*imageDataStruct.imgHeight)) == NULL) {
+    if ((imageData = (unsigned char *)malloc(rowBytes*ImageData.imgHeight)) == NULL) {
         png_destroy_read_struct(&pngPointer, &infoPointer, NULL);
         return -1;
     }
   
-    for (int i = 0;  i < imageDataStruct.imgHeight;  ++i)
+    for (int i = 0;  i < ImageData.imgHeight;  ++i)
         rowPointers[i] = imageData + i*rowBytes;
     
     int pixPos;
-    for(int y = 0; y < imageDataStruct.imgHeight; y++) {
-//        rowPointers[y] = new png_byte[imageDataStruct.imgWidth];
+    for(int y = 0; y < ImageData.imgHeight; y++) {
+//        rowPointers[y] = new png_byte[ImageData.imgWidth];
         png_bytep row = rowPointers[y];
-        for(int x = 0; x < imageDataStruct.imgWidth; x++) {
+        for(int x = 0; x < ImageData.imgWidth; x++) {
             png_bytep px = &(row[x * 4]);
-            pixPos = x+(y*imageDataStruct.imgWidth);
-            px[0] = imageDataStruct.imgPixArray[pixPos].r;
-            px[1] = imageDataStruct.imgPixArray[pixPos].g;
-            px[2] = imageDataStruct.imgPixArray[pixPos].b;
-            px[3] = imageDataStruct.imgPixArray[pixPos].a;
+            pixPos = x+(y*ImageData.imgWidth);
+            px[0] = ImageData.imgPixArray[pixPos].r;
+            px[1] = ImageData.imgPixArray[pixPos].g;
+            px[2] = ImageData.imgPixArray[pixPos].b;
+            px[3] = ImageData.imgPixArray[pixPos].a;
         }
     }
     
@@ -295,7 +260,7 @@ int PNGProcessor::writeImage(char* path, ImageDataStruct imageDataStruct){
 
     if (pngPointer && infoPointer) png_destroy_write_struct(&pngPointer, &infoPointer);
     
-    delete imageDataStruct.imgPixArray;
+    delete ImageData.imgPixArray;
     
     fclose(outfile);
     
@@ -305,10 +270,6 @@ int PNGProcessor::writeImage(char* path, ImageDataStruct imageDataStruct){
     return 0;
 }
 
-/**
- * fill the RGBAPixel array
- * @return 1
- */
 int PNGProcessor::fillRGBApixelArray(){
     
     imgDataStruct.imgPixArray = new RGBApixel[imgHeight*imgWidth];
@@ -330,15 +291,16 @@ int PNGProcessor::fillRGBApixelArray(){
     return 1;
 }
 
-ImageDataStruct PNGProcessor::getImageDataStruct(){
+ImageData PNGProcessor::getImageData(){
     return this->imgDataStruct;
 }
 
-/**
- * free the pixel array in imageDataStruct
- * @return 1 
- */
 int PNGProcessor::freeImageData(){
     imgDataStruct.imgPixArray = NULL;
     return 1;
 }
+
+
+
+} // namespace IProc
+} // namespace oneptr

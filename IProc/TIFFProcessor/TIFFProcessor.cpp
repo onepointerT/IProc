@@ -1,11 +1,14 @@
-/* 
- * File:   TIFFProcessor.cpp
- * Author: heshan
- * 
- * Created on December 2, 2017, 9:28 AM
- */
+// Copyright 2017,2025 The OnePointer Authors.
+//
 
-#include "TIFFProcessor.h"
+
+#include "TIFFProcessor/TIFFProcessor.hpp"
+
+
+namespace oneptr {
+namespace IProc {
+
+
 
 TIFFProcessor::TIFFProcessor() { }
 
@@ -13,42 +16,24 @@ TIFFProcessor::TIFFProcessor(const TIFFProcessor& orig) { }
 
 TIFFProcessor::~TIFFProcessor() { }
 
-/**
- * @param height of the image
- * @return 1 
- */
 int TIFFProcessor::setHeight(int height) {
     this->imgHeight = height;
     return 1;
 }
 
-/**
- * @param width of the image
- * @return 1
- */
 int TIFFProcessor::setWidth(int width) {
     this->imgWidth = width;
     return 1;
 }
 
-/**
- * @return height of the image 
- */
 int TIFFProcessor::getHeight() {
     return this->imgHeight;
 }
 
-/**
- * @return width of the image 
- */
 int TIFFProcessor::getWidth() {
     return this->imgWidth;
 }
 
-/**
- * @param filename the path to the image
- * @return 1 if read the image without any errors
- */
 int TIFFProcessor::readImage(char * filename) {
   
     TIFF* tif = TIFFOpen(filename, "r");
@@ -71,12 +56,7 @@ int TIFFProcessor::readImage(char * filename) {
     return 1;
 }
 
-/**
- * @param filename target fie path
- * @param imageDataStruct pixel array of the image to be written
- * @return 1 if write the image without any errors
- */
-int TIFFProcessor::writeImage (char * filename, ImageDataStruct imageDataStruct) {
+int TIFFProcessor::writeImage (char * filename, ImageData ImageData) {
   
     TIFF* tif = TIFFOpen(filename, "w");
     
@@ -85,8 +65,8 @@ int TIFFProcessor::writeImage (char * filename, ImageDataStruct imageDataStruct)
         uint8 * buf;
         uint32 row, col;
         uint16 config, nsamples;
-        imagewidth = imageDataStruct.imgWidth ;
-        imagelength = imageDataStruct.imgHeight ;
+        imagewidth = ImageData.imgWidth ;
+        imagelength = ImageData.imgHeight ;
         config = PLANARCONFIG_CONTIG ;
         nsamples = 3;
 
@@ -102,10 +82,10 @@ int TIFFProcessor::writeImage (char * filename, ImageDataStruct imageDataStruct)
         buf = new uint8 [imagewidth*nsamples] ;
         for (row = 0; row < imagelength; row++){
             for(col=0; col < imagewidth; col++){
-                buf[col*nsamples+0] = static_cast<uint8> (imageDataStruct.imgPixArray[pixPos].r);
-                buf[col*nsamples+1] = static_cast<uint8> (imageDataStruct.imgPixArray[pixPos].g);
-                buf[col*nsamples+2] = static_cast<uint8> (imageDataStruct.imgPixArray[pixPos].b);
-                buf[col*nsamples+3] = static_cast<uint8> (imageDataStruct.imgPixArray[pixPos].a);
+                buf[col*nsamples+0] = static_cast<uint8> (ImageData.imgPixArray[pixPos].r);
+                buf[col*nsamples+1] = static_cast<uint8> (ImageData.imgPixArray[pixPos].g);
+                buf[col*nsamples+2] = static_cast<uint8> (ImageData.imgPixArray[pixPos].b);
+                buf[col*nsamples+3] = static_cast<uint8> (ImageData.imgPixArray[pixPos].a);
                 pixPos++;
             }
             if (TIFFWriteScanline(tif, buf, row) != 1 ) break;
@@ -113,23 +93,14 @@ int TIFFProcessor::writeImage (char * filename, ImageDataStruct imageDataStruct)
         _TIFFfree(buf);
         TIFFClose(tif);
     }
-    delete imageDataStruct.imgPixArray;
+    delete ImageData.imgPixArray;
     return 1;
 }
 
-/**
- * @return ImageDataStruct that contains pixel array and image meta data 
- */
-ImageDataStruct TIFFProcessor::getImageDataStruct(){
+ImageData TIFFProcessor::getImageData(){
     return this->imgDataStruct;
 }
 
-/**
- * @param buffer that contains decompressed image pixels 
- * @param pixPos pixel position
- * @param row_stride physical row width in image buffer 
- * @return 1 
- */
 int TIFFProcessor::fillRGBApixelArray(uint32* raster, int npixels){
     
     imgDataStruct.imgPixArray = new RGBApixel[npixels];
@@ -158,12 +129,13 @@ int TIFFProcessor::fillRGBApixelArray(uint32* raster, int npixels){
     return 1;
 }
 
-/**
- * free the pixel array in imageDataStruct
- * @return 1 
- */
 int TIFFProcessor::freeImageData(){
     imgDataStruct.imgPixArray = NULL;
     return 1;
 }
 
+
+
+
+} // namespace IProc
+} // namespace oneptr

@@ -38,3 +38,16 @@ include_directories( src )
 file( GLOB IPROC_SRCFILES IProc/*Processor/*.cpp IProc/IProc/*.cpp )
 add_library( IProc STATIC ${IPROC_SRCFILES} )
 target_link_libraries( IProc jpeglib png tiff zlibstatic )
+
+
+set( ENABLE_DOC_IProc TRUE )
+if( ENABLE_DOC_IProc )
+	find_package(Doxygen)
+	if(DOXYGEN_FOUND)
+		message("-- Enabled doc_IProc target for make")
+        # CMAKE_CURRENT_SOURCE_DIR is where the last call to CMake's project was,
+        # CMAKE_CURRENT_BINARY_DIR is where the build of the binaries is performed
+		configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+		add_custom_target(doc_IProc ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} COMMENT "Generating documentation with Doxygen")
+	endif()
+endif()
