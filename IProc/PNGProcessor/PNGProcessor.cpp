@@ -5,8 +5,8 @@
 #include "PNGProcessor/PNGProcessor.hpp"
 
 
-#include <iostream>
 #include <cstdio>
+#include <cstdlib>
 
 
 namespace oneptr {
@@ -44,7 +44,7 @@ PNGProcessor::PNGProcessor(const PNGProcessor& orig)
 {}
 
 PNGProcessor::~PNGProcessor() {
-    free(rowPointers);
+    std::free(rowPointers);
 }
 
 u_int PNGProcessor::getHeight(){
@@ -80,13 +80,13 @@ bool PNGProcessor::readImage(char* path){
     png_infop infoPointer;
     unsigned char *imageData;
     
-    FILE *infile = fopen(path, "rb");
+    FILE *infile = std::fopen(path, "rb");
     
     if(!infile) return 1; // error in output file //
     
     // Checking if the input file is a png file
     unsigned char signatureBytes[8];
-    fread(signatureBytes, 1, 8, infile);
+    std::fread(signatureBytes, 1, 8, infile);
     if (!png_check_sig(signatureBytes, 8))
         return 1;   // bad signature //
     
@@ -203,10 +203,10 @@ bool PNGProcessor::readImage(char* path){
     fillRGBApixelArray();
     
     imageData = NULL;
-    free(pngPointer);
-    free(infoPointer);
+    std::free(pngPointer);
+    std::free(infoPointer);
     
-    fclose(infile);
+    std::fclose(infile);
     
     return 0;
 }
@@ -219,7 +219,7 @@ bool PNGProcessor::writeImage(char* path, ImageData& ImageData){
     unsigned char *imageData;
     int rowBytes;
 
-    FILE *outfile = fopen(path, "wb");
+    FILE *outfile = std::fopen(path, "wb");
     
     if(!outfile) 
         return 1;  // error in output file //
@@ -232,12 +232,12 @@ bool PNGProcessor::writeImage(char* path, ImageData& ImageData){
     );
     
     pngPointer = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (!pngPointer) abort();
+    if (!pngPointer) std::abort();
     
     infoPointer = png_create_info_struct(pngPointer);
-    if (!infoPointer) abort();
+    if (!infoPointer) std::abort();
     
-    if (setjmp(png_jmpbuf(pngPointer))) abort();
+    if (setjmp(png_jmpbuf(pngPointer))) std::abort();
     
     png_init_io(pngPointer, outfile);
     
@@ -287,9 +287,9 @@ bool PNGProcessor::writeImage(char* path, ImageData& ImageData){
     
     delete ImageData.imgPixArray;
     
-    fclose(outfile);
+    std::fclose(outfile);
     
-    free(imageData);
+    std::free(imageData);
 //    free(mainprogPointer);
     
     return 0;

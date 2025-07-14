@@ -321,7 +321,7 @@ target_sources(tiff PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/tif_ojpeg.c
         ${CMAKE_CURRENT_SOURCE_DIR}/tif_open.c
         ${CMAKE_CURRENT_SOURCE_DIR}/tif_packbits.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/tif_pixarlog.c
+#        ${CMAKE_CURRENT_SOURCE_DIR}/tif_pixarlog.c
         ${CMAKE_CURRENT_SOURCE_DIR}/tif_predict.c
         ${CMAKE_CURRENT_SOURCE_DIR}/tif_print.c
         ${CMAKE_CURRENT_SOURCE_DIR}/tif_read.c
@@ -477,29 +477,29 @@ if(CXX_SUPPORT)
           ${CMAKE_CURRENT_SOURCE_DIR}/tiffio.hxx)
 
   # No .def file for this library.
-  if (WIN32 AND NOT MINGW)
-      add_library(tiffxx STATIC ${MODULE_PATH}/placeholder.h)
-  else()
-      add_library(tiffxx ${TIFF_BUILD_LIB_VALUE} ${MODULE_PATH}/placeholder.h)
-  endif()
+#  if (WIN32 AND NOT MINGW)
+#      add_library(tiffxx STATIC ${MODULE_PATH}/placeholder.h)
+#  else()
+#      add_library(tiffxx ${TIFF_BUILD_LIB_VALUE} ${MODULE_PATH}/placeholder.h)
+#  endif()
 
-  add_library(TIFF::CXX ALIAS tiffxx)
+#  add_library(TIFF::CXX ALIAS tiffxx)
 
-  target_sources(tiffxx PRIVATE
-          ${tiffxx_HEADERS}
-          ${CMAKE_CURRENT_SOURCE_DIR}/tif_stream.cxx)
-  target_link_libraries(tiffxx tiff)
-  set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION})
+#  target_sources(tiffxx PRIVATE
+#          ${tiffxx_HEADERS}
+#          ${CMAKE_CURRENT_SOURCE_DIR}/tif_stream.cxx)
+#  target_link_libraries(tiffxx tiff)
+#  set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION})
   if(NOT CYGWIN)
     # This property causes shared libraries on Linux to have the full version
     # encoded into their final filename.  We disable this on Cygwin because
     # it causes cygz-${TIFF_FULL_VERSION}.dll to be created when cygz.dll
     # seems to be the default.
-    set_target_properties(tiffxx PROPERTIES VERSION ${SO_VERSION})
+#    set_target_properties(tiffxx PROPERTIES VERSION ${SO_VERSION})
   endif()
   if(HAVE_LD_VERSION_SCRIPT)
-    set_target_properties(tiffxx PROPERTIES LINK_FLAGS
-                          "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtiffxx.map")
+#    set_target_properties(tiffxx PROPERTIES LINK_FLAGS
+#                          "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtiffxx.map")
   endif()
 
   if(tiff-install)

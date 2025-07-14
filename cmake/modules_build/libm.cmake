@@ -1,0 +1,7 @@
+function(build MODULE_NAME MODULE_PATH)
+    add_definitions( -D__x86_64__)
+    include_directories( ${PROJECT_SOURCE_DIR}/lib/endian_h )
+    include_directories( ${MODULE_PATH}/src/ce-libm )
+    file( GLOB LIBM_SOURCES ${MODULE_PATH}/src/ce-libm/*.c )
+    add_library( m_ce ${LIBM_SOURCES} )
+endfunction(build MODULE_NAME MODULE_PATH)

@@ -48,16 +48,16 @@ set( JPEG_SOURCES ${MODULE_PATH}/jcapimin.c
         ${MODULE_PATH}/jquant2.c
         ${MODULE_PATH}/jutils.c
         ${MODULE_PATH}/jmemmgr.c
-        ${MODULE_PATH}/jmemansi.c
-        ${MODULE_PATH}/jmemname.c
+#        ${MODULE_PATH}/jmemansi.c
+#        ${MODULE_PATH}/jmemname.c
         ${MODULE_PATH}/jmemnobs.c
 #        ${MODULE_PATH}/jmemdos.c
 #        ${MODULE_PATH}/jmemmac.c
-        ${MODULE_PATH}/cjpeg.c
-        ${MODULE_PATH}/djpeg.c
-        ${MODULE_PATH}/jpegtran.c
+#        ${MODULE_PATH}/cjpeg.c
+#        ${MODULE_PATH}/djpeg.c
+#        ${MODULE_PATH}/jpegtran.c
         ${MODULE_PATH}/rdjpgcom.c
-        ${MODULE_PATH}/wrjpgcom.c
+#        ${MODULE_PATH}/wrjpgcom.c
         ${MODULE_PATH}/cdjpeg.c
         ${MODULE_PATH}/rdcolmap.c
         ${MODULE_PATH}/rdswitch.c

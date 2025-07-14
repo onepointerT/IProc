@@ -6,9 +6,8 @@
 
 
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
-#include <iostream>
-#include <fstream>
 
 
 namespace oneptr {
@@ -30,7 +29,6 @@ bool BMPProcessor::readImage( char* filename ) {
     
     FILE* file = std::fopen( filename, "rb" );
     if ( file == NULL ) {
-        std::cout << "Error in the file '" << filename << "'.";
         return false;
     }
 

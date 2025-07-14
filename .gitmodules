@@ -12,3 +12,12 @@
 	path = lib/zlib
 	url = https://github.com/madler/zlib.git
 	branch = develop
+[submodule "lib/nanosvg"]
+	path = lib/nanosvg
+	url = https://github.com/memononen/nanosvg.git
+[submodule "lib/libm"]
+	path = lib/libm
+	url = https://github.com/onepointerT/ce-libm.git
+[submodule "lib/ImCvt"]
+	path = lib/ImCvt
+	url = https://github.com/WangXuan95/ImCvt.git

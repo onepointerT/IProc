@@ -4,7 +4,6 @@
 #pragma once
 
 #include <stdio.h>
-#include <iostream>
 #include <tiffio.h>
 
 #include "PictureProcessor.hpp"

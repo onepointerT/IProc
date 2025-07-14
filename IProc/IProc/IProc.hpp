@@ -4,6 +4,7 @@
 #pragma once
 
 #include <cstring>
+#include <string>
 
 #include "JPEGProcessor/JPEGProcessor.hpp"
 #include "BMPProcessor/BMPProcessor.hpp"
