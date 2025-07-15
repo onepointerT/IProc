@@ -18,9 +18,9 @@ endif()
 include_directories( lib/libjpeg/libjpeg-master )
 include_directories( lib/libpng )
 include_directories( lib/libtiff/libtiff )
-include_directories( lib/libm/src/ce-libm )
+#include_directories( lib/libm/src/ce-libm )
 #include_directories( lib/openlibm/include )
-include_directories( lib/nanosvg/src )
+#include_directories( lib/nanosvg/src )
 include_directories( lib/zlib )
 
 include_directories( IProc )
@@ -35,19 +35,14 @@ build_module( zlib ${PROJECT_SOURCE_DIR}/lib/zlib )
 build_module( libtiff ${PROJECT_SOURCE_DIR}/lib/libtiff )
 # Build libpng
 build_module( libpng ${PROJECT_SOURCE_DIR}/lib/libpng )
-# Build libm
-#add_subdirectory( lib/openlibm )
-#build_module( libm ${PROJECT_SOURCE_DIR}/lib/libm )
-add_subdirectory( lib/libm )
-# Build nanosvg
-set( MATH_LIBRARY m_ce )
-build_module( nanosvg ${PROJECT_SOURCE_DIR}/lib/nanosvg )
+# Build lunasvg
+add_subdirectory( lib/lunasvg )
 
 
 include_directories( src )
 file( GLOB IPROC_SRCFILES IProc/*Processor/*.cpp IProc/IProc/*.cpp )
 add_library( IProc STATIC ${IPROC_SRCFILES} )
-target_link_libraries( IProc jpeglib png tiff zlibstatic ${MATH_LIBRARY} )
+target_link_libraries( IProc jpeglib png tiff zlibstatic lunasvg ${MATH_LIBRARY} )
 
 
 set( ENABLE_DOC_IProc TRUE )

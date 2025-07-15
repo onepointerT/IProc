@@ -5,6 +5,9 @@
 
 #include "PictureProcessor.hpp"
 
+#include "nanosvg.h"
+
+
 namespace oneptr {
 namespace IProc {
 
@@ -54,7 +57,7 @@ public:
 
 
 protected:
-
+    NSVGimage& mImage;
 
     friend class SVGProcessor;
 };
